@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class UserRepository implements UserRepositoryInterface {
 
@@ -13,41 +14,63 @@ class UserRepository implements UserRepositoryInterface {
 		return $user;
 	}
 
-	public function getUserById(int $id)
-	{
-		$user = User::findOrFail($id);
+	public function storeUser(array $request){
 
+		try {
+
+			$user = User::create([
+				'name' => $request['name'],
+				'email' => $request['email'],
+				'password' => bcrypt($request['password'])
+			]);
+
+		} catch (\Exception $exception) {
+
+			Log::error($exception->getMessage());
+
+			return false;
+		}
+		
 		return $user;
 	}
 
-	public function storeUser(object $request){
+	public function updateUser(int $id, array $data){
+		
+		try {
 
-		User::create([
-			'name' => $request->name,
-			'email' => $request->email,
-			'password' => bcrypt($request->password)
-		]);
+			$user = User::find($id);
 
-		return "Successfully Added user.";
-	}
+			$user->fill($data);
 
-	public function updateUser(int $id, object $request){
+			if (isset($data['password'])) {
+				$user->password = bcrypt($data['password']);
+			}
+		
+			$user->save();
 
-		User::where('id', $id)->update([
-			'name' => $request->name,
-			'email' => $request->emai,
-			'password' => bcrypt($request->password)
-		]);
+		} catch (\Exception $exception) {
 
-		return "Successfully Updated user.";
+			Log::error($exception->getMessage());
 
+			return false;
+		}
+		
+		return $user;
 	}
 
 	public function deleteUser(int $id){
 
-		User::where('id', $id)->delete();
+		try {
 
-		return "Successfully deleted user.";
+			User::where('id', $id)->delete();
 
+		} catch (\Exception $exception) {
+
+			Log::error($exception->getMessage());
+
+			return false;
+		}
+		
+		return true;
 	}
 }

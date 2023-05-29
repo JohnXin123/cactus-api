@@ -7,11 +7,9 @@ interface UserRepositoryInterface {
 
 	function getAllUsers();
 
-	function getUserById(int $id);
+	function storeUser(array $request);
 
-	function storeUser(object $request);
-
-	function updateUser(int $id, object $request);
+	function updateUser(int $id, array $request);
 
 	function deleteUser(int $id);
 }
